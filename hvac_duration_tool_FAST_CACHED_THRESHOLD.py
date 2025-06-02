@@ -3,9 +3,17 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import joblib
+import zipfile
+import os
 
 st.set_page_config(page_title="HVAC Permit Duration Estimator", layout="centered")
 st.title("⚡ HVAC Tool - Versione Ottimizzata")
+
+# 👉 Estrai i modelli all'avvio, una volta sola
+zip_name = "pkl-20250602T084740Z-1-001.zip"
+if os.path.exists(zip_name) and not os.path.exists("model_duration.pkl"):
+    with zipfile.ZipFile(zip_name, 'r') as zip_ref:
+        zip_ref.extractall()
 
 @st.cache_data
 def load_data():
@@ -13,15 +21,6 @@ def load_data():
 
 @st.cache_resource
 def load_models():
-    import zipfile
-    import os
-    import joblib
-
-    zip_name = "pkl-20250602T084740Z-1-001.zip"
-    if os.path.exists(zip_name):
-        with zipfile.ZipFile(zip_name, 'r') as zip_ref:
-            zip_ref.extractall()
-
     model_duration = joblib.load("model_duration.pkl")
     model_sequence = joblib.load("model_sequence.pkl")
     encoder = joblib.load("encoder.pkl")
@@ -106,7 +105,6 @@ if not filtered_df.empty:
 else:
     st.warning("Non ci sono abbastanza dati per simulare la Permit Sequence.")
 
-
 st.subheader("📏 Analisi Rinnovo Permesso (Soglia Personalizzata)")
 threshold = st.slider("Imposta la soglia durata massima prima di dover rinnovare il permesso (giorni):", 30, 365, 120, step=10)
 if not filtered_df.empty:
@@ -115,4 +113,5 @@ if not filtered_df.empty:
     st.info(f"Probabilità stimata di superare la soglia di {threshold} giorni: {p_exceeded:.1f}%")
 else:
     st.warning("Dati insufficienti per stimare la probabilità di sforo soglia.")
+
 
