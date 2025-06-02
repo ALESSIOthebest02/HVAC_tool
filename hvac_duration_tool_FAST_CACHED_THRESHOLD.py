@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -9,7 +10,7 @@ import os
 st.set_page_config(page_title="HVAC Permit Duration Estimator", layout="centered")
 st.title("⚡ HVAC Tool - Versione Ottimizzata")
 
-# 👉 Estrai i modelli all'avvio, una volta sola
+# ✅ Estrai i modelli una volta sola (fuori da ogni funzione!)
 zip_name = "pkl-20250602T084740Z-1-001.zip"
 if os.path.exists(zip_name) and not os.path.exists("model_duration.pkl"):
     with zipfile.ZipFile(zip_name, 'r') as zip_ref:
@@ -19,7 +20,7 @@ if os.path.exists(zip_name) and not os.path.exists("model_duration.pkl"):
 def load_data():
     return pd.read_excel("total_x_ANN_e_tool_with_sequence.xlsx")[['Work Type', 'Borough', 'Fascia_Edificio', 'Duration', 'Permit Sequence']].dropna()
 
-@st.cache_resource
+# ⚠️ load_models NON è in cache!
 def load_models():
     model_duration = joblib.load("model_duration.pkl")
     model_sequence = joblib.load("model_sequence.pkl")
@@ -113,5 +114,6 @@ if not filtered_df.empty:
     st.info(f"Probabilità stimata di superare la soglia di {threshold} giorni: {p_exceeded:.1f}%")
 else:
     st.warning("Dati insufficienti per stimare la probabilità di sforo soglia.")
+
 
 
