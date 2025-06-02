@@ -13,6 +13,15 @@ def load_data():
 
 @st.cache_resource
 def load_models():
+    import zipfile
+    import os
+    import joblib
+
+    zip_name = "pkl-20250602T084740Z-1-001.zip"
+    if os.path.exists(zip_name):
+        with zipfile.ZipFile(zip_name, 'r') as zip_ref:
+            zip_ref.extractall()
+
     model_duration = joblib.load("model_duration.pkl")
     model_sequence = joblib.load("model_sequence.pkl")
     encoder = joblib.load("encoder.pkl")
@@ -106,3 +115,4 @@ if not filtered_df.empty:
     st.info(f"Probabilità stimata di superare la soglia di {threshold} giorni: {p_exceeded:.1f}%")
 else:
     st.warning("Dati insufficienti per stimare la probabilità di sforo soglia.")
+
